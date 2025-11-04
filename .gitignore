@@ -1,0 +1,30 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Environments
+.env
+.venv/
+venv/
+
+# Project-specific artifacts
+stage2_eda_artifacts/
+stage3_dataset_artifacts/
+stage4_yolo_dataset/
+stage5_yolov8l_runs/
+stage5_yolov8x_runs/
+stage6_submission_artifacts/
+stage7_visual_artifacts/
+stage8_*/
+matplotlib_cache/
+ultralytics_settings/
+weights/
+
+# Logs & miscellaneous
+*.log
+nohup.out

@@ -1,0 +1,22 @@
+# Stage 1 YOLOv8 Large smoke-test configuration (빠른 파이프라인 검증용)
+# - epochs: 1 로 축소하여 CPU 환경에서도 빠르게 완료됨.
+# - 실제 학습은 configs/stage1_yolov8l.yaml 설정을 사용하세요.
+
+model: /mnt/nas/jayden_code/Tablet-Detection-Private/weights/yolov8l.pt
+data: /mnt/nas/jayden_code/Tablet-Detection-Private/stage4_yolo_dataset/dataset.yaml
+epochs: 1
+batch: 8
+imgsz: 640
+patience: 5
+device: auto
+optimizer: SGD
+lr0: 0.01
+lrf: 0.01
+weight_decay: 0.0005
+project: /mnt/nas/jayden_code/Tablet-Detection-Private/stage5_yolov8l_runs
+name: yolov8l_stage1_smoke
+seed: 2024
+pretrained: true
+save: true
+exist_ok: true
+workers: 0
