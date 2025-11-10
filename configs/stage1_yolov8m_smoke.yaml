@@ -1,0 +1,20 @@
+# YOLOv8 Medium smoke-test configuration (1 epoch)
+
+model: yolov8m.pt
+data: /mnt/nas/jayden_code/Tablet-Detection-Private/stage4_yolo_dataset/dataset.yaml
+epochs: 1
+batch: 8
+imgsz: 640
+patience: 5
+device: auto
+optimizer: SGD
+lr0: 0.01
+lrf: 0.01
+weight_decay: 0.0005
+project: /mnt/nas/jayden_code/Tablet-Detection-Private/stage5_yolov8m_runs
+name: yolov8m_stage1_smoke
+seed: 2024
+pretrained: true
+save: true
+exist_ok: true
+workers: 0

@@ -23,7 +23,7 @@ PROJECT_ROOT = Path("/mnt/nas/jayden_code/Tablet-Detection-Private")
 VAL_COCO_PATH = PROJECT_ROOT / "stage3_dataset_artifacts" / "coco" / "val.json"
 CLASS_MAPPING_PATH = PROJECT_ROOT / "stage4_yolo_dataset" / "reports" / "class_mapping.json"
 TRAIN_IMAGE_DIR = Path("/mnt/nas/jayden_code/ai05-level1-project/train_images")
-WEIGHTS_PATH = PROJECT_ROOT / "stage5_yolov8l_runs" / "yolov8l_stage12" / "weights" / "best.pt"
+DEFAULT_WEIGHTS_PATH = PROJECT_ROOT / "stage5_yolov8l_runs" / "yolov8l_stage12" / "weights" / "best.pt"
 OUTPUT_DIR = PROJECT_ROOT / "stage7_visual_artifacts"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -150,9 +150,14 @@ def xyxy_to_xywh(x1: float, y1: float, x2: float, y2: float, img_w: int, img_h: 
     return x1, y1, w, h
 
 
-def generate_visualizations(sample_ids: List[int], inverse_mapping: Dict[int, int]) -> None:
+def generate_visualizations(
+    sample_ids: List[int],
+    inverse_mapping: Dict[int, int],
+    weights_path: Path,
+    prefix: str,
+) -> None:
     configure_korean_font()
-    model = YOLO(str(WEIGHTS_PATH))
+    model = YOLO(str(weights_path))
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
 
     id_to_file, id_to_cat, ann_by_image = load_coco_annotations(VAL_COCO_PATH)
@@ -203,7 +208,7 @@ def generate_visualizations(sample_ids: List[int], inverse_mapping: Dict[int, in
         draw_annotations(axes[1], image, pred_annotations, "Pred", edge_color="#d62728")
 
         fig.tight_layout()
-        output_path = OUTPUT_DIR / f"compare_{image_id}.png"
+        output_path = OUTPUT_DIR / f"{prefix}compare_{image_id}.png"
         fig.savefig(output_path, dpi=200)
         plt.close(fig)
 
@@ -214,6 +219,12 @@ def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser(description="Ground truth vs prediction visualization generator")
+    parser.add_argument(
+        "--weights",
+        type=Path,
+        default=DEFAULT_WEIGHTS_PATH,
+        help="YOLO 가중치 경로",
+    )
     parser.add_argument(
         "--count",
         type=int,
@@ -232,11 +243,19 @@ def parse_args():
         default=RANDOM_SEED,
         help="랜덤 시드 (기본 2024)",
     )
+    parser.add_argument(
+        "--prefix",
+        type=str,
+        default="",
+        help="저장 파일명 앞에 붙일 접두사",
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
+    if not args.weights.exists():
+        raise FileNotFoundError(f"가중치를 찾을 수 없습니다: {args.weights}")
     id_to_file, _, _ = load_coco_annotations(VAL_COCO_PATH)
     image_ids = sorted(id_to_file.keys())
 
@@ -261,7 +280,7 @@ def main() -> None:
         sample_ids = image_ids[: max(0, min(args.count, len(image_ids)))]
 
     inverse_mapping = load_inverse_mapping(CLASS_MAPPING_PATH)
-    generate_visualizations(sample_ids, inverse_mapping)
+    generate_visualizations(sample_ids, inverse_mapping, args.weights, args.prefix)
 
 
 if __name__ == "__main__":
